@@ -16,7 +16,7 @@ public class AirportsService {
     // Создание логгера
     private static final Logger logger = LoggerFactory.getLogger(AirportsService.class);
 
-    private Map<String, ArrayList<Airports>> cities = new HashMap<String, ArrayList<Airports>>();;
+    private Map<String, ArrayList<Airports>> cities = new HashMap<String, ArrayList<Airports>>();
 
     public ResponseEntity<Airports> getAirports(
             String cityName,
