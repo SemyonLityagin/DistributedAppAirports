@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.cities.airports.service.AirportsService;
 
+import java.util.Locale;
+
 //tag to init Rest controller
 @RestController
 @RequestMapping(value="cities/{cityName}/airports")
@@ -26,26 +28,29 @@ public class AirportsController {
     @PostMapping
     public ResponseEntity<String> createAirports(
             @PathVariable("cityName") String cityName,
-            @RequestBody Airports request
+            @RequestBody Airports request,
+            @RequestHeader(value = "Accept-Language",required = false) Locale locale
     ) {
-        return airportsService.createAirports(request, cityName);
+        return airportsService.createAirports(request, cityName, locale);
     }
 
     @PutMapping(value="/{airportName}")
     public ResponseEntity<String> putAirports(
             @PathVariable("cityName") String cityName,
             @PathVariable("airportName") String airportName,
-            @RequestBody Airports request
+            @RequestBody Airports request,
+            @RequestHeader(value = "Accept-Language",required = false) Locale locale
     ) {
-        return airportsService.putAirports(cityName, airportName, request);
+        return airportsService.putAirports(cityName, airportName, request, locale);
     }
 
     @DeleteMapping(value="/{airportName}")
     public ResponseEntity<String> deleteAirports(
             @PathVariable("cityName") String cityName,
-            @PathVariable("airportName") String airportName
+            @PathVariable("airportName") String airportName,
+            @RequestHeader(value = "Accept-Language",required = false) Locale locale
     ) {
-        return airportsService.deleteAirports(cityName, airportName);
+        return airportsService.deleteAirports(cityName, airportName, locale);
     }
 
 }

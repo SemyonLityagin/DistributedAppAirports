@@ -5,6 +5,8 @@ import java.util.*;
 import com.cities.airports.model.Airports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,9 @@ public class AirportsService {
     private static final Logger logger = LoggerFactory.getLogger(AirportsService.class);
 
     private Map<String, ArrayList<Airports>> cities = new HashMap<String, ArrayList<Airports>>();
+
+    @Autowired
+    MessageSource messages;
 
     public ResponseEntity<Airports> getAirports(
             String cityName,
@@ -41,7 +46,7 @@ public class AirportsService {
         return ResponseEntity.ok(foundAirports);
     }
 
-    public ResponseEntity<String> createAirports(Airports airports, String cityName){
+    public ResponseEntity<String> createAirports(Airports airports, String cityName, Locale locale){
 
         // lazy id adding
         airports.setId(new Random().nextInt(1000));
@@ -52,7 +57,7 @@ public class AirportsService {
             for (Airports cityAirport : cityAirports) {
                 if (airports.getAirportName().equals(cityAirport.getAirportName())) {
                     logger.info("POSTING: airport already exist");
-                    return ResponseEntity.badRequest().body("This airport is already in list!!!");
+                    return ResponseEntity.badRequest().body(messages.getMessage("airports.createError.message", null,locale));
                 }
             }
 
@@ -62,13 +67,14 @@ public class AirportsService {
             cityAirports.add(airports);
             cities.put(cityName, cityAirports);
         }
-        return ResponseEntity.ok("Airport add in city list!!");
+        return ResponseEntity.ok(String.format(messages.getMessage("airports.create.message", null,locale), airports.toString()));
     }
 
     public ResponseEntity<String> putAirports(
             String cityName,
             String airportName,
-            Airports airports
+            Airports airports,
+            Locale locale
     ) {
        if (cities.containsKey(cityName)) {
             ArrayList<Airports> cityAirports = cities.get(cityName);
@@ -87,17 +93,18 @@ public class AirportsService {
                 }
             }
             if (setFlag) {
-                return ResponseEntity.ok("Succesfully putting!!");
+                return ResponseEntity.ok(String.format(messages.getMessage("airports.update.message", null,locale), airports.toString()));
             }
             logger.info("PUTTING: airport not found");
         }
-        return ResponseEntity.badRequest().body("No city or airport yet!!");
+        return ResponseEntity.badRequest().body(messages.getMessage("airports.updateError.message", null,locale));
     }
 
 
     public ResponseEntity<String> deleteAirports(
             String cityName,
-            String airportName
+            String airportName,
+            Locale locale
     ) {
         if (cities.containsKey(cityName)) {
             ArrayList<Airports> cityAirports = cities.get(cityName);
@@ -113,11 +120,11 @@ public class AirportsService {
                 }
             }
             if (deleteFlag) {
-                return ResponseEntity.ok("Succesfully deleting!!");
+                return ResponseEntity.ok(String.format(messages.getMessage("airports.delete.message", null,locale), cityName, airportName));
             }
             logger.info("DELETING: airport not found");
         }
-        return ResponseEntity.badRequest().body("No city or airport yet!!");
+        return ResponseEntity.badRequest().body(messages.getMessage("airports.deleteError.message", null,locale));
     }
 }
 
