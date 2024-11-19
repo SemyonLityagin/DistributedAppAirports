@@ -2,12 +2,16 @@ package com.cities.airports.controller;
 
 import com.cities.airports.model.Airports;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.cities.airports.service.AirportsService;
 
 import java.util.Locale;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 //tag to init Rest controller
 @RestController
@@ -17,11 +21,29 @@ public class AirportsController {
     @Autowired
     private AirportsService airportsService;
 
+    @Autowired
+    MessageSource messages;
+
     @GetMapping(value="/{airportName}")
     public ResponseEntity<Airports> getAirports(
             @PathVariable("cityName") String cityName,
-            @PathVariable("airportName") String airportName
+            @PathVariable("airportName") String airportName,
+            @RequestHeader(value = "Accept-Language",required = false) Locale locale
     ) {
+        Airports airports = airportsService.getAirports(cityName, airportName).getBody();
+        airports.add(linkTo(methodOn(AirportsController.class)
+                        .getAirports(cityName, airportName, null))
+                        .withSelfRel(),
+                linkTo(methodOn(AirportsController.class)
+                        .createAirports(cityName, airports, null))
+                        .withRel(messages.getMessage("airport.create.URL.name", null,locale)),
+                linkTo(methodOn(AirportsController.class)
+                        .putAirports(cityName, airportName, airports, null))
+                        .withRel(messages.getMessage("airport.put.URL.name", null,locale)),
+                linkTo(methodOn(AirportsController.class)
+                        .deleteAirports(cityName, airportName, null))
+                        .withRel(messages.getMessage("airport.delete.URL.name",null,locale))
+        );
         return airportsService.getAirports(cityName, airportName);
     }
 
