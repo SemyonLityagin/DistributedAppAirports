@@ -30,7 +30,8 @@ public class AirportsController {
             @PathVariable("airportName") String airportName,
             @RequestHeader(value = "Accept-Language",required = false) Locale locale
     ) {
-        Airports airports = airportsService.getAirports(cityName, airportName).getBody();
+        ResponseEntity<Airports> response = airportsService.getAirports(cityName, airportName, locale);
+        Airports airports = response.getBody();
         airports.add(linkTo(methodOn(AirportsController.class)
                         .getAirports(cityName, airportName, null))
                         .withSelfRel(),
@@ -44,7 +45,7 @@ public class AirportsController {
                         .deleteAirports(cityName, airportName, null))
                         .withRel(messages.getMessage("airport.delete.URL.name",null,locale))
         );
-        return airportsService.getAirports(cityName, airportName);
+        return response;
     }
 
     @PostMapping
