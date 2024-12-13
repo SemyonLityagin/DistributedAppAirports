@@ -32,19 +32,21 @@ public class AirportsController {
     ) {
         ResponseEntity<Airports> response = airportsService.getAirports(cityName, airportName, locale);
         Airports airports = response.getBody();
-        airports.add(linkTo(methodOn(AirportsController.class)
-                        .getAirports(cityName, airportName, null))
-                        .withSelfRel(),
-                linkTo(methodOn(AirportsController.class)
-                        .createAirports(cityName, airports, null))
-                        .withRel(messages.getMessage("airport.create.URL.name", null,locale)),
-                linkTo(methodOn(AirportsController.class)
-                        .putAirports(cityName, airportName, airports, null))
-                        .withRel(messages.getMessage("airport.put.URL.name", null,locale)),
-                linkTo(methodOn(AirportsController.class)
-                        .deleteAirports(cityName, airportName, null))
-                        .withRel(messages.getMessage("airport.delete.URL.name",null,locale))
-        );
+        if(airports != null){
+            airports.add(linkTo(methodOn(AirportsController.class)
+                            .getAirports(cityName, airportName, null))
+                            .withSelfRel(),
+                    linkTo(methodOn(AirportsController.class)
+                            .createAirports(cityName, airports, null))
+                            .withRel(messages.getMessage("airport.create.URL.name", null,locale)),
+                    linkTo(methodOn(AirportsController.class)
+                            .putAirports(cityName, airportName, airports, null))
+                            .withRel(messages.getMessage("airport.put.URL.name", null,locale)),
+                    linkTo(methodOn(AirportsController.class)
+                            .deleteAirports(cityName, airportName, null))
+                            .withRel(messages.getMessage("airport.delete.URL.name",null,locale))
+            );
+        }
         return response;
     }
 

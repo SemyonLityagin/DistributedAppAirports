@@ -1,9 +1,6 @@
 package com.cities.airports.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,28 +13,28 @@ import org.springframework.hateoas.RepresentationModel;
 @Table(name="airports")
 public class Airports extends RepresentationModel<Airports> {
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "cityName", nullable = false)
+    @Column(name = "\"cityName\"", nullable = false)
     private String cityName;
 
-    @Column(name = "airportName", nullable = false)
+    @Column(name = "\"airportName\"", nullable = false)
     private String airportName;
 
-    @Column(name = "staffCosts", nullable = false)
+    @Column(name = "\"staffCosts\"", nullable = false)
     private int staffCosts;
 
-    @Column(name = "revenues", nullable = false)
+    @Column(name = "\"revenues\"", nullable = false)
     private int revenues;
 
-    @Column(name = "terminalCapacity", nullable = false)
+    @Column(name = "\"terminalCapacity\"", nullable = false)
     private int terminalCapacity;
 
-    @Column(name = "annualPassengerVolume", nullable = false)
+    @Column(name = "\"annualPassengerVolume\"", nullable = false)
     private int annualPassengerVolume;
 
-    @Column(name = "cargo", nullable = false)
+    @Column(name = "\"cargo\"", nullable = false)
     private int cargo;
 
     private String comment;
