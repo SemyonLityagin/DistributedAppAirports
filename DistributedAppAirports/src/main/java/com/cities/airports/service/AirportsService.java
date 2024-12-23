@@ -20,8 +20,6 @@ public class AirportsService {
     // Создание логгера
     private static final Logger logger = LoggerFactory.getLogger(AirportsService.class);
 
-    private Map<String, ArrayList<Airports>> cities = new HashMap<String, ArrayList<Airports>>();
-
     @Autowired
     MessageSource messages;
 
@@ -35,14 +33,14 @@ public class AirportsService {
             String airportName,
             Locale locale
     ){
+        List<Airports> airportsList = airportsRepository.findByCityNameAndAirportName(cityName, airportName);
 
-        Airports airports = airportsRepository.findByCityNameAndAirportName(cityName, airportName).getFirst();
-        if (null == airports) {
-//            return ResponseEntity.badRequest().body(messages.getMessage("airports.searchError.message", null,locale));
+        if(airportsList.isEmpty()) {
             return ResponseEntity.badRequest().body(null);
-//            throw new IllegalArgumentException(messages.getMessage("airports.searchError.message", null, locale));
+        } else {
+            Airports airports = airportsList.getFirst();
+            return ResponseEntity.ok(airports.withComment(config.getProperty()));
         }
-        return ResponseEntity.ok(airports.withComment(config.getProperty()));
     }
 
     public ResponseEntity<String> createAirports(
@@ -71,28 +69,35 @@ public class AirportsService {
             Airports airports,
             Locale locale
     ) {
-        System.out.println(cityName);
-        System.out.println(airportName);
-        Airports currentAirport = airportsRepository.findByCityNameAndAirportName(cityName, airportName).getFirst();
+        List<Airports> airportsList = airportsRepository.findByCityNameAndAirportName(cityName, airportName);
 
-        if (currentAirport != null) {
-            currentAirport.setCityName(airports.getCityName());
-            currentAirport.setAirportName(airports.getAirportName());
-            currentAirport.setStaffCosts(airports.getStaffCosts());
-            currentAirport.setRevenues(airports.getRevenues());
-            currentAirport.setTerminalCapacity(airports.getTerminalCapacity());
-            currentAirport.setAnnualPassengerVolume(airports.getAnnualPassengerVolume());
-            currentAirport.setCargo(airports.getCargo());
-            currentAirport.withComment("Putting");
+        if(airportsList.isEmpty()) {
+            // Если аэропорт не найден
+            logger.info("PUTTING: airport not found");
+            System.out.println(messages.getMessage("airports.updateError.message", null, locale));
+            return ResponseEntity.badRequest().body(messages.getMessage("airports.updateError.message", null, locale));
+        } else {
+            Airports currentAirport = airportsList.getFirst();
 
-            airportsRepository.save(currentAirport);
+            if (currentAirport != null) {
+                currentAirport.setCityName(airports.getCityName());
+                currentAirport.setAirportName(airports.getAirportName());
+                currentAirport.setStaffCosts(airports.getStaffCosts());
+                currentAirport.setRevenues(airports.getRevenues());
+                currentAirport.setTerminalCapacity(airports.getTerminalCapacity());
+                currentAirport.setAnnualPassengerVolume(airports.getAnnualPassengerVolume());
+                currentAirport.setCargo(airports.getCargo());
+                currentAirport.withComment("Putting");
 
-            return ResponseEntity.ok(String.format(messages.getMessage("airports.update.message", null, locale), currentAirport.toString()));
+                airportsRepository.save(currentAirport);
+
+                return ResponseEntity.ok(String.format(messages.getMessage("airports.update.message", null, locale), currentAirport.toString()));
+            } else {
+                logger.info("PUTTING: airport not found");
+                System.out.println(messages.getMessage("airports.updateError.message", null, locale));
+                return ResponseEntity.badRequest().body(messages.getMessage("airports.updateError.message", null, locale));
+            }
         }
-
-        // Если аэропорт не найден
-        logger.info("PUTTING: airport not found");
-        return ResponseEntity.badRequest().body(messages.getMessage("airports.updateError.message", null, locale));
     }
 
     public ResponseEntity<String> deleteAirports(
@@ -105,7 +110,7 @@ public class AirportsService {
         airports.setCityName(cityName);
         airports.setAirportName(airportName);
         airportsRepository.delete(airports);
-        responseMessage = messages.getMessage("airports.delete.message", null, locale);
+        responseMessage = String.format(messages.getMessage("airports.delete.message", null, locale), cityName, airportName);
         return ResponseEntity.ok(responseMessage);
     }
 
